@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Project Pulse</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="dashboard" aria-labelledby="page-title">
+      <header class="dashboard-header">
+        <p class="eyebrow">Team overview</p>
+        <h1 id="page-title">Project Pulse</h1>
+        <p>Track the latest momentum, ownership, and priorities across Mona's projects.</p>
+      </header>
+
+      <section aria-labelledby="projects-heading">
+        <div class="section-heading">
+          <h2 id="projects-heading">Projects</h2>
+          <p id="project-count" aria-live="polite"></p>
+        </div>
+        <div id="state-message" role="status" aria-live="polite">Loading projects&hellip;</div>
+        <div id="project-list" class="project-grid"></div>
+      </section>
+    </main>
+
+    <script>
+      const projectList = document.querySelector("#project-list");
+      const stateMessage = document.querySelector("#state-message");
+      const projectCount = document.querySelector("#project-count");
+      const requiredFields = ["name", "owner", "status", "recentActivity", "priority"];
+
+      function showState(message, stateClass) {
+        stateMessage.textContent = message;
+        stateMessage.className = stateClass;
+        stateMessage.hidden = false;
+      }
+
+      function displayValue(value) {
+        return typeof value === "string" && value.trim() ? value : "Unavailable";
+      }
+
+      function createProjectCard(project) {
+        const card = document.createElement("article");
+        card.className = "project-card";
+
+        const name = document.createElement("h3");
+        name.textContent = displayValue(project.name);
+        card.appendChild(name);
+
+        const details = document.createElement("dl");
+        const fields = [
+          ["Owner", project.owner],
+          ["Status", project.status],
+          ["Recent activity", project.recentActivity],
+          ["Priority", project.priority]
+        ];
+
+        fields.forEach(([label, value]) => {
+          const term = document.createElement("dt");
+          term.textContent = label;
+          const description = document.createElement("dd");
+          description.textContent = displayValue(value);
+          details.append(term, description);
+        });
+
+        card.appendChild(details);
+        return card;
+      }
+
+      function renderProjects(data) {
+        if (!data || !Array.isArray(data.projects)) {
+          throw new Error("Project data must contain a top-level projects array.");
+        }
+
+        if (data.projects.length === 0) {
+          projectCount.textContent = "0 projects";
+          projectList.replaceChildren();
+          showState("No projects are available yet.", "empty-state");
+          return;
+        }
+
+        const invalidProject = data.projects.find((project) => {
+          return !project || typeof project !== "object" ||
+            requiredFields.some((field) => !Object.prototype.hasOwnProperty.call(project, field));
+        });
+        if (invalidProject) {
+          throw new Error("One or more projects are missing required fields.");
+        }
+
+        projectList.replaceChildren(...data.projects.map(createProjectCard));
+        projectCount.textContent = `${data.projects.length} ${data.projects.length === 1 ? "project" : "projects"}`;
+        stateMessage.hidden = true;
+      }
+
+      fetch("project-data.json")
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`Unable to load project data (HTTP ${response.status}).`);
+          }
+          return response.json();
+        })
+        .then(renderProjects)
+        .catch((error) => {
+          projectList.replaceChildren();
+          projectCount.textContent = "";
+          showState(`Project data error: ${error.message}`, "error-state");
+        });
+    </script>
+  </body>
+</html>

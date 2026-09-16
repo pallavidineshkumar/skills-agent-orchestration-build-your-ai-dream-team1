@@ -1,0 +1,32 @@
+{
+  "projects": [
+    {
+      "name": "Atlas Workspace",
+      "owner": "Mona Patel",
+      "status": "On track",
+      "recentActivity": "Design review completed and implementation is moving into the next sprint.",
+      "priority": "High"
+    },
+    {
+      "name": "Signal Insights",
+      "owner": "Jordan Lee",
+      "status": "At risk",
+      "recentActivity": "Data pipeline validation is waiting on an updated partner export.",
+      "priority": "Critical"
+    },
+    {
+      "name": "Welcome Center",
+      "owner": "Avery Chen",
+      "status": "In progress",
+      "recentActivity": "The onboarding content draft is ready for stakeholder feedback.",
+      "priority": "Medium"
+    },
+    {
+      "name": "Northstar Mobile",
+      "owner": "Riley Morgan",
+      "status": "Complete",
+      "recentActivity": "Release 2.4 shipped with the new notification preferences.",
+      "priority": "Low"
+    }
+  ]
+}
